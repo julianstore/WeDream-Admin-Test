@@ -1,10 +1,36 @@
 import axiosInstance from '.';
-import { Dream } from '../models/dream';
+import { DreamResponse, DreamStatistic } from '../models/dream';
 
-export const getDreams = () => {
+export const getAllDreams = (pageNum = 1, perPage = 50) => {
   return axiosInstance
-    .get<Dream[]>('/dream/all', {})
-    .then((res) => res.data['dreamList']);
+    .get<DreamResponse>('/dream/all', { params: { page_num: pageNum, per_page: perPage }})
+    .then((res) => res.data);
+};
+
+export const getDreamStatistic = () => {
+  return axiosInstance
+    .get<DreamStatistic>('/dream/statistic')
+    .then((res) => res.data);
+};
+
+export const getDreamList = (pageNum = 1, perPage = 50, listType = 0, categoryId = 10001, ownerId = '' ) => {
+  /* listType
+    0: all dreams
+    1: featured dreams
+    2: owners dreams
+    3: category dreams
+  */
+  return axiosInstance
+    .get<DreamResponse>('/dream/list',
+    {
+      params: {
+        page_num: pageNum,
+        per_page: perPage,
+        list_type: listType,
+        category_id: categoryId,
+        owner_id: ownerId
+      }})
+    .then((res) => res.data);
 };
 
 export const addDream = async (

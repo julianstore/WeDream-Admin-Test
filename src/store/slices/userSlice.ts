@@ -5,8 +5,8 @@ import * as api from '../api-client';
 export const getUsers = createAsyncThunk<User[], void, { state: AppState }>(
   'user/getList',
   async () => {
-    const users = await api.getUsers();
-    return users;
+    const users = await api.getAllUsers();
+    return users.users;
   }
 );
 

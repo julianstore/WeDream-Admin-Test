@@ -19,15 +19,25 @@ export interface Avatar {
   backAccessory: string;
   bottomAccessory: string;
   colorSchemeId: string;
+  frontAccessory: string;
+  hitpointsAccessory: string;
   topAccessory: string;
   trailsAccessory: string;
-  hpAccessory: string;
 }
 
 export interface User {
+  userId: string;
   avatar: Avatar;
   displayName: string;
   imageUrl: string;
   isAdmin: boolean;
+  isBlocked: boolean;
+  isFriend: boolean;
   profile: Profile;
+}
+export interface UserResponse {
+  totalCount: string;
+  pageNum: number;
+  perPage: number;
+  users: Array<User>;
 }

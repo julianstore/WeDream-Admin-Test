@@ -7,8 +7,8 @@ export const getCategories = createAsyncThunk<
   void,
   { state: AppState }
 >('dream/category/list', async () => {
-  const categories = await api.getCategories();
-  return categories;
+  const categories = await api.getDreamCategoryList();
+  return categories.categories;
 });
 
 export interface CategoryState {

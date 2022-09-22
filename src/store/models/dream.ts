@@ -16,3 +16,15 @@ export interface Dream {
   ownerDisplayName: string;
   categoryName: string;
 }
+
+export interface DreamResponse {
+  pageNum: number;
+  perPage: number;
+  totalCount: string;
+  dreamList: Array<Dream>;
+}
+
+export interface DreamStatistic {
+  dreamGroupCount: number;
+  dreamGroupUserCount: number;
+}

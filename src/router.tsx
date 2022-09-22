@@ -8,6 +8,8 @@ import SignIn from 'src/content/pages/SignIn';
 import ApplicationsDreams from 'src/content/applications/Dreams/list';
 import ApplicationsCategories from './content/applications/Categories/list';
 import ApplicationsUsers from './content/applications/Users/list';
+import Overview from './content/overview';
+import Dashboard from './content/dashboards'
 
 // ** Lazy Loading Components **
 // import { Suspense, lazy } from 'react';
@@ -35,11 +37,39 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',
-        element: <Navigate to="management/users" replace />
+        element: <Navigate to="dashboard" replace />
       },
       {
         path: '/signin',
         element: <SignIn />
+      }
+    ]
+  },
+  {
+    path: 'overview',
+    element: <SidebarLayout />,
+    children: [
+      {
+        path: '',
+        element: (
+          <AuthRoute>
+            <Overview />
+          </AuthRoute>
+        )
+      }
+    ]
+  },
+  {
+    path: 'dashboard',
+    element: <SidebarLayout />,
+    children: [
+      {
+        path: '',
+        element: (
+          <AuthRoute>
+            <Dashboard />
+          </AuthRoute>
+        )
       }
     ]
   },

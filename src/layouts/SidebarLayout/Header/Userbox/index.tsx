@@ -1,4 +1,4 @@
-import { useRef, useState, useContext } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import AuthContext from 'src/contexts/AuthContext';
 import {
@@ -14,13 +14,14 @@ import {
   Popover,
   Typography
 } from '@mui/material';
-
 import InboxTwoToneIcon from '@mui/icons-material/InboxTwoTone';
 import { styled } from '@mui/material/styles';
 import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+
+import * as api from 'src/store/api-client';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -77,6 +78,21 @@ function HeaderUserbox() {
   const handleClose = (): void => {
     setOpen(false);
   };
+
+  const handleSignOut = async () => {
+    await api.signOut();
+    authContext.signOut(() => {
+      navigate('/signin');
+    });
+  }
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", async (ev) => {
+      ev.preventDefault();
+      await api.signOut();
+      authContext.signOut(() => {});
+    })
+  }, [])
 
   return (
     <>
@@ -140,11 +156,7 @@ function HeaderUserbox() {
           <Button
             color="primary"
             fullWidth
-            onClick={() => {
-              authContext.signout(() => {
-                navigate('/signin');
-              });
-            }}
+            onClick={handleSignOut}
           >
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
             Sign out

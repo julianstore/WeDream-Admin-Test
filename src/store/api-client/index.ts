@@ -6,7 +6,7 @@ const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_WEDREAM_API_URL,
   headers: {
     //Accept: 'application/json, text/plain, */*',
-    'Content-Type': 'application/json' //multipart/form-data; boundary=----WebKitFormBoundaryBGVvH3OfggAP4Tad
+    'Content-Type': 'application/json'
   }
 });
 
@@ -14,8 +14,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(function (config) {
   const token = localStorage.getItem('wedream-auth-token');
   config.headers.Authorization = token ? token : '';
-  //   const token = `eyJhbGciOiJIUzI1NiIsImtpZCI6Indnb2cxIiwibW9kIjoiQVBQIiwidHlwIjoiSldUIn0.eyJleHAiOjE2NjE4ODAyMzIsImlhdCI6MTY1NDEwNDIzMiwiaXNzIjoid2VkcmVhbSIsIm5hbSI6IlRlc3QgQXBwIiwibmJmIjoxNjU0MTA0MjMyLCJzdWIiOiIyIn0.1u2mvebHaHfUsseMMTsaHg1shbWu6AfTDnbhm7_ivOo`;
-  //   config.headers.Authorization = token;
   return config;
 });
 

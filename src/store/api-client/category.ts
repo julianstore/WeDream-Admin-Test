@@ -1,11 +1,12 @@
 import axiosInstance from '.';
-import { Category } from '../models/category';
+import { CategoryResponse } from '../models/category';
 
-export const getCategories = () => {
+export const getDreamCategoryList = (pageNum = 1, perPage = 50) => {
   return axiosInstance
-    .get<Category[]>('/dream/category/list', {})
-    .then((res) => res.data['categories']);
+    .get<CategoryResponse>('/dream/category/list', { params: { page_num: pageNum, per_page: perPage }})
+    .then((res) => res.data);
 };
+
 export const addCategory = async (
   categoryId: string,
   icon: string,

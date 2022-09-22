@@ -1,10 +1,10 @@
 import { Helmet } from 'react-helmet-async';
-import PageHeader from './PageHeader';
-import PageTitleWrapper from 'src/components/PageTitleWrapper';
 import { Grid, Container } from '@mui/material';
-import Footer from 'src/components/Footer';
 
 import UserList from './UserList';
+import PageHeader from './PageHeader';
+import Footer from 'src/components/Footer';
+import PageTitleWrapper from 'src/components/PageTitleWrapper';
 
 function ApplicationsUsers() {
   return (

@@ -3,3 +3,10 @@ export interface Category {
   icon: string;
   name: string;
 }
+
+export interface CategoryResponse {
+  pageNum: number;
+  perPage: number;
+  totalCount: string;
+  categories: Array<Category>;
+}

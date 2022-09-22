@@ -1,3 +1,7 @@
+import { useCallback, useContext, useState } from 'react';
+import { injectStyle } from 'react-toastify/dist/inject-style';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
   Container,
@@ -10,12 +14,10 @@ import {
 } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { Box, styled } from '@mui/material';
-import { useContext, useState } from 'react';
-import AuthContext from '../../contexts/AuthContext';
+
 import * as api from 'src/store/api-client';
-import { injectStyle } from 'react-toastify/dist/inject-style';
-import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import AuthContext from '../../contexts/AuthContext';
+import SuspenseLoader from 'src/components/SuspenseLoader';
 
 if (typeof window !== 'undefined') {
   injectStyle();
@@ -23,7 +25,7 @@ if (typeof window !== 'undefined') {
 
 const SignInWrapper = styled(Box)(
   ({ theme }) => `
-          margin-top: ${theme.spacing(30)};
+    margin-top: ${theme.spacing(30)};
   `
 );
 
@@ -31,26 +33,31 @@ const SignIn = () => {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
-
-
+  const [loading, setLoading] = useState(false);
   const [userLogin, setUserLogin] = useState('');
   const [password, setPassword] = useState('');
-  const handleSignIn = async (userLogin: string, password: string) => {
-    const LoginSource_Admin = 3;
-    await api.signIn(userLogin, password, LoginSource_Admin).then((res) => {
+  const handleSignIn = useCallback(async () => {
+    const LoginSourceAdmin = 3;
+    try {
+      setLoading(true);
+      const res = await api.signIn(userLogin, password, LoginSourceAdmin);
       if (res.status === 200) {
-        toast.success('Success!!!');
         localStorage.setItem('wedream-auth-token', res.data.authToken.accessToken);
-        authContext.signin(res.data, () => {
-          navigate('/management/users');
+        authContext.signIn(res.data, () => {
+          navigate('/dashboard');
         });
       } else {
+        setLoading(false);
         toast.warning(res.data.ERR_CODE);
       }
-    });
-  };
+    } catch(ex) {
+      setLoading(false);
+    }
+  }, [userLogin, password, loading]);
+
   return (
     <>
+      {loading && <SuspenseLoader/>}
       <Helmet>
         <title>Sign In</title>
       </Helmet>
@@ -102,9 +109,7 @@ const SignIn = () => {
                     <Button
                       sx={{ margin: 1 }}
                       variant="contained"
-                      onClick={() => {
-                        handleSignIn(userLogin, password);
-                      }}
+                      onClick={handleSignIn}
                     >
                       Sign In
                     </Button>

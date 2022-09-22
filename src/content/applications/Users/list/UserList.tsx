@@ -1,20 +1,36 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@mui/material';
+
 import UserListTable from './UserListTable';
-import { getUsers, _userList } from 'src/store/slices/userSlice';
-import { useState, useEffect } from 'react';
+import SuspenseLoader from 'src/components/SuspenseLoader';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { getUsers, _userList } from 'src/store/slices/userSlice';
+import * as api from 'src/store/api-client'
 
 function UserList() {
-  const dispatch = useAppDispatch();
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  const getAllUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userRes = await api.getAllUsers();
+      setUsers(userRes.users);
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    getAllUsers();
+  }, []);
 
-  const userList = useAppSelector(_userList);
   return (
     <Card>
-      <UserListTable users={userList} />
+      <UserListTable users={users} />
+      {loading && <SuspenseLoader/>}
     </Card>
   );
 }

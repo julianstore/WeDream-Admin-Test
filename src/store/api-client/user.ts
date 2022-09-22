@@ -1,10 +1,16 @@
 import axiosInstance from '.';
-import { User, Profile } from '../models/user';
+import { UserResponse } from '../models/user';
 
-export const getUsers = () => {
+export const getAllUsers = (pageNum = 1, perPage = 50) => {
   return axiosInstance
-    .get<User[]>('/account/list', {})
-    .then((res) => res.data['userList']);
+    .get<UserResponse>('/account/list', { params: { page_num: pageNum, per_page: perPage }})
+    .then((res) => res.data);
+};
+
+export const getOnlineUsers = (pageNum = 1, perPage = 50) => {
+  return axiosInstance
+    .get<UserResponse>('/account/sessions', { params: { page_num: pageNum, per_page: perPage }})
+    .then((res) => res.data);
 };
 
 export const addUser = async (

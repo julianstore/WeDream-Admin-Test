@@ -5,8 +5,8 @@ import * as api from '../api-client';
 export const getDreams = createAsyncThunk<Dream[], void, { state: AppState }>(
   'dream/getList',
   async () => {
-    const dreams = await api.getDreams();
-    return dreams;
+    const dreams = await api.getAllDreams();
+    return dreams.dreamList;
   }
 );
 
