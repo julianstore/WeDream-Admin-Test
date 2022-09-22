@@ -1,11 +1,11 @@
 {
   "name": "wedream-admin",
   "version": "1.0.0",
-  "title": "Tokyo Free White React Typescript Admin Dashboard",
-  "description": "This free and open source admin dashboard template is built for React and it’s bootstrapped from Facebook’s create-react-app. All NPM dependencies are up to date and it contains multiple fully customized components based on the popular frontend components framework, Material-UI.",
+  "title": "WeDream Admin Dashboard",
+  "description": "We are excited to announce two more incredibly talented musicians to our Dream Festival line up for you next week!",
   "author": {
-    "name": "BloomUI.com",
-    "url": "https://bloomui.com"
+    "name": "WeDream.com",
+    "url": "https://www.wedream.world/"
   },
   "private": false,
   "dependencies": {

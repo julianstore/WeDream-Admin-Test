@@ -1,12 +1,20 @@
+import { useContext, useEffect, useState } from 'react';
 import { Typography, Avatar, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
+import AuthContext from 'src/contexts/AuthContext';
+
 function PageHeader() {
-  const user = {
-    name: 'Catherine Pike',
-    avatar: '/static/images/avatars/1.jpg'
-  };
+  const authContext = useContext(AuthContext);
+  const [user, setUser] = useState({ name: '', avatar: '' });
   const theme = useTheme();
+
+  useEffect(() => {
+    setUser({
+      name: authContext?.user?.user?.displayName || '',
+      avatar: authContext?.user?.user?.imageUrl || '/static/images/avatars/6.png',
+    });
+  }, [authContext])
 
   return (
     <Grid container alignItems="center">
@@ -27,7 +35,7 @@ function PageHeader() {
           Welcome, {user.name}!
         </Typography>
         <Typography variant="subtitle2">
-          Today is a good day to start trading crypto assets!
+          Today is a good day to enjoy with WeDream!
         </Typography>
       </Grid>
     </Grid>

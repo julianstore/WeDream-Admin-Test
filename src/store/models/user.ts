@@ -35,9 +35,26 @@ export interface User {
   isFriend: boolean;
   profile: Profile;
 }
-export interface UserResponse {
+export interface UsersResponse {
   totalCount: string;
   pageNum: number;
   perPage: number;
   users: Array<User>;
+}
+
+export interface CountType {
+  remainingInvites: string;
+  pendingNotifications: string;
+}
+
+export interface Credentials {
+  accessKeyId: string;
+  secretAccessKey: string;
+}
+
+export interface UserResponse {
+  user: User;
+  counts: CountType;
+  credentials: Credentials;
+  friendStatus: string;
 }

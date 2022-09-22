@@ -1,6 +1,5 @@
 import { useRef, useState, useContext, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
-import AuthContext from 'src/contexts/AuthContext';
 import {
   Avatar,
   Box,
@@ -22,6 +21,7 @@ import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 
 import * as api from 'src/store/api-client';
+import AuthContext from 'src/contexts/AuthContext';
 
 const UserBoxButton = styled(Button)(
   ({ theme }) => `
@@ -62,12 +62,7 @@ function HeaderUserbox() {
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const user = {
-    name: 'Admin',
-    avatar: '/static/images/avatars/1.jpg',
-    jobtitle: 'Project Manager'
-  };
-
+  const [user, setUser] = useState({ name: '', avatar: '', jobTitle: '' });
   const ref = useRef<any>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -87,12 +82,20 @@ function HeaderUserbox() {
   }
 
   useEffect(() => {
+    setUser({
+      name: authContext?.user?.user?.displayName || '',
+      avatar: authContext?.user?.user?.imageUrl || '/static/images/avatars/6.png',
+      jobTitle: authContext?.user?.user?.profile?.email || ''
+    });
+  }, [authContext]);
+
+  useEffect(() => {
     window.addEventListener("beforeunload", async (ev) => {
       ev.preventDefault();
       await api.signOut();
       authContext.signOut(() => {});
     })
-  }, [])
+  }, []);
 
   return (
     <>
@@ -102,7 +105,7 @@ function HeaderUserbox() {
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {user.jobTitle}
             </UserBoxDescription>
           </UserBoxText>
         </Hidden>
@@ -128,7 +131,7 @@ function HeaderUserbox() {
           <UserBoxText>
             <UserBoxLabel variant="body1">{user.name}</UserBoxLabel>
             <UserBoxDescription variant="body2">
-              {user.jobtitle}
+              {user.jobTitle}
             </UserBoxDescription>
           </UserBoxText>
         </MenuUserBox>

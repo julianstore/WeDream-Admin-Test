@@ -1,15 +1,21 @@
 import axiosInstance from '.';
-import { UserResponse } from '../models/user';
+import { UsersResponse, UserResponse } from '../models/user';
 
-export const getAllUsers = (pageNum = 1, perPage = 50) => {
+export const getAllUsers = (pageNum = 1, perPage = 5) => {
   return axiosInstance
-    .get<UserResponse>('/account/list', { params: { page_num: pageNum, per_page: perPage }})
+    .get<UsersResponse>('/account/list', { params: { page_num: pageNum, per_page: perPage }})
     .then((res) => res.data);
 };
 
-export const getOnlineUsers = (pageNum = 1, perPage = 50) => {
+export const getOnlineUsers = (pageNum = 1, perPage = 5) => {
   return axiosInstance
-    .get<UserResponse>('/account/sessions', { params: { page_num: pageNum, per_page: perPage }})
+    .get<UsersResponse>('/account/sessions', { params: { page_num: pageNum, per_page: perPage }})
+    .then((res) => res.data);
+};
+
+export const getUserById = (userId = '', getProfile = false, getAvatar = false, getCounts = false, getCredentials = false) => {
+  return axiosInstance
+    .get<UserResponse>(`/account/${userId}`, { params: { getProfile, getAvatar, getCounts, getCredentials }})
     .then((res) => res.data);
 };
 

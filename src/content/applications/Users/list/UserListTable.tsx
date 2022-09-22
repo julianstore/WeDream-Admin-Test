@@ -1,5 +1,4 @@
-import { FC, ChangeEvent, useState } from 'react';
-import Avatar from '@mui/material/Avatar';
+import { FC, ChangeEvent, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Tooltip,
@@ -17,35 +16,31 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-
-import { User } from 'src/store/models/user';
-import AddUser from '../AddUser';
+import Avatar from '@mui/material/Avatar';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
+
+import AddUser from '../AddUser';
 import * as api from 'src/store/api-client';
+import { User } from 'src/store/models/user';
 import { useAppDispatch } from 'src/store/hooks';
+import { Pagination } from 'src/store/models/base';
 import { getUsers } from 'src/store/slices/userSlice';
-import { injectStyle } from 'react-toastify/dist/inject-style';
 import { ToastContainer, toast } from 'react-toastify';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 
 interface UserListTableProps {
   className?: string;
   users: User[];
+  totalCount: number;
+  setPagination: (pagination: Pagination) => void;
 }
-
-const applyPagination = (
-  users: User[],
-  page: number,
-  limit: number
-): User[] => {
-  return users.slice(page * limit, page * limit + limit);
-};
 
 if (typeof window !== 'undefined') {
   injectStyle();
 }
 
-const UserListTable: FC<UserListTableProps> = ({ users }) => {
+const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPagination }) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
@@ -63,7 +58,6 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
     setLimit(parseInt(event.target.value));
   };
 
-  const paginatedUsers = applyPagination(users, page, limit);
   const theme = useTheme();
 
   const handleUpdate = () => {
@@ -80,6 +74,11 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
       }
     });
   };
+
+  useEffect(() => {
+    setPagination({ page: page + 1, limit });
+  }, [page, limit])
+
   return (
     <>
       <AddUser
@@ -95,7 +94,7 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>User ID</TableCell>
+                {/* <TableCell>User ID</TableCell> */}
                 <TableCell>Avatar</TableCell>
                 <TableCell>Full Name</TableCell>
                 <TableCell>Display Name</TableCell>
@@ -105,7 +104,7 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedUsers.map((user) => {
+              {users.map((user) => {
                 const isUserSelected = selectedUsers.includes(
                   user?.profile?.userId
                 );
@@ -115,7 +114,7 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
                     key={user?.profile?.userId}
                     selected={isUserSelected}
                   >
-                    <TableCell>
+                    {/* <TableCell>
                       <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -125,7 +124,7 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
                       >
                         {user?.profile?.userId}
                       </Typography>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <Typography
                         variant="body1"
@@ -232,7 +231,7 @@ const UserListTable: FC<UserListTableProps> = ({ users }) => {
         <Box p={2}>
           <TablePagination
             component="div"
-            count={users.length}
+            count={totalCount}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleLimitChange}
             page={page}

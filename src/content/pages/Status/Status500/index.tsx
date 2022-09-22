@@ -115,16 +115,14 @@ function Status500() {
               <Container maxWidth="sm">
                 <Box textAlign="center">
                   <TypographyPrimary variant="h1" sx={{ my: 2 }}>
-                    Tokyo Free White React Typescript Admin Dashboard
+                    WeDream Admin Dashboard
                   </TypographyPrimary>
                   <TypographySecondary
                     variant="h4"
                     fontWeight="normal"
                     sx={{ mb: 4 }}
                   >
-                    High performance React template built with lots of powerful
-                    Material-UI components across multiple product niches for
-                    fast &amp; perfect apps development processes.
+                    We are excited to announce two more incredibly talented musicians to our Dream Festival line up for you next week!
                   </TypographySecondary>
                   <Button href="/overview" size="large" variant="contained">
                     Overview

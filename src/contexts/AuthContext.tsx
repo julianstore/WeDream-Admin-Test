@@ -1,9 +1,14 @@
 import React from 'react';
 
+import { AuthToken } from 'src/store/models/auth';
+import { UserResponse } from 'src/store/models/user';
+
 interface AuthContextType {
-  account: any;
+  authToken: AuthToken;
+  user: UserResponse;
   isAuthenticated: boolean;
-  signIn: (account: any, callback: VoidFunction) => void;
+  setUser: (user: UserResponse) => void;
+  signIn: (authToken: AuthToken, callback: VoidFunction) => void;
   signOut: (callback: VoidFunction) => void;
 }
 

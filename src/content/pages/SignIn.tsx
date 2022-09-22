@@ -43,7 +43,7 @@ const SignIn = () => {
       const res = await api.signIn(userLogin, password, LoginSourceAdmin);
       if (res.status === 200) {
         localStorage.setItem('wedream-auth-token', res.data.authToken.accessToken);
-        authContext.signIn(res.data, () => {
+        authContext.signIn(res.data.authToken, () => {
           navigate('/dashboard');
         });
       } else {
