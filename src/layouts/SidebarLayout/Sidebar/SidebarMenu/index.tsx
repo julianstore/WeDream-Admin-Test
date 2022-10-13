@@ -35,6 +35,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import GroupIcon from '@mui/icons-material/Group';
 import CategoryIcon from '@mui/icons-material/Category';
 import TvIcon from '@mui/icons-material/Tv';
+import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -273,6 +274,17 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
+                  to="/management/dreams"
+                  startIcon={<TvIcon />}
+                >
+                  Dream List
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
                   to="/management/categories"
                   startIcon={<CategoryIcon />}
                 >
@@ -284,10 +296,10 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
-                  to="/management/dreams"
-                  startIcon={<TvIcon />}
+                  to="/management/voice-request"
+                  startIcon={<RecordVoiceOverIcon />}
                 >
-                  Dream List
+                  Voice Request
                 </Button>
               </ListItem>
             </List>

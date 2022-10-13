@@ -1,15 +1,16 @@
 import { Navigate } from 'react-router-dom';
 import { RouteObject } from 'react-router';
 
-import AuthRoute from 'src/contexts/AuthRoute';
-import SidebarLayout from 'src/layouts/SidebarLayout';
-import BaseLayout from 'src/layouts/BaseLayout';
-import SignIn from 'src/content/pages/SignIn';
-import ApplicationsDreams from 'src/content/applications/Dreams/list';
-import ApplicationsCategories from './content/applications/Categories/list';
-import ApplicationsUsers from './content/applications/Users/list';
 import Overview from './content/overview';
 import Dashboard from './content/dashboards'
+import SignIn from 'src/content/pages/SignIn';
+import AuthRoute from 'src/contexts/AuthRoute';
+import BaseLayout from 'src/layouts/BaseLayout';
+import SidebarLayout from 'src/layouts/SidebarLayout';
+import ApplicationsUsers from './content/applications/Users/list';
+import ApplicationsDreams from 'src/content/applications/Dreams/list';
+import ApplicationsCategories from './content/applications/Categories/list';
+import ApplicationsVoiceRequests from './content/applications/VoiceRequest/list';
 
 // ** Lazy Loading Components **
 // import { Suspense, lazy } from 'react';
@@ -90,6 +91,14 @@ const routes: RouteObject[] = [
         )
       },
       {
+        path: 'dreams',
+        element: (
+          <AuthRoute>
+            <ApplicationsDreams />
+          </AuthRoute>
+        )
+      },
+      {
         path: 'categories',
         element: (
           <AuthRoute>
@@ -98,13 +107,13 @@ const routes: RouteObject[] = [
         )
       },
       {
-        path: 'dreams',
+        path: 'voice-request',
         element: (
           <AuthRoute>
-            <ApplicationsDreams />
+            <ApplicationsVoiceRequests />
           </AuthRoute>
         )
-      }
+      },
     ]
   }
 ];

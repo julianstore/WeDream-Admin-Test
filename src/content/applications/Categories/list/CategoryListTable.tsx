@@ -1,5 +1,4 @@
-import { FC, ChangeEvent, useState } from 'react';
-import Avatar from '@mui/material/Avatar';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Tooltip,
@@ -17,74 +16,82 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-
-import { Category } from 'src/store/models/category';
-import AddCategory from '../AddCategory';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import * as api from 'src/store/api-client';
-import { useAppDispatch } from 'src/store/hooks';
-import { getCategories } from 'src/store/slices/categorySlice';
-import { injectStyle } from 'react-toastify/dist/inject-style';
 import { ToastContainer, toast } from 'react-toastify';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import { injectStyle } from 'react-toastify/dist/inject-style';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
-interface CategoryListTableProps {
-  className?: string;
-  categories: Category[];
-}
-
-const applyPagination = (
-  categories: Category[],
-  page: number,
-  limit: number
-): Category[] => {
-  return categories.slice(page * limit, page * limit + limit);
-};
+import AddCategory from '../AddCategory';
+import * as api from 'src/store/api-client';
+import { Category } from 'src/store/models/category';
+import SuspenseLoader from 'src/components/SuspenseLoader';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { _categoryList, _pagination, _totalCount, setTotalCount, setPagination, setCategoryList, setSelectedCategory } from 'src/store/slices/categorySlice';
 
 if (typeof window !== 'undefined') {
   injectStyle();
 }
 
-const CategoryListTable: FC<CategoryListTableProps> = ({ categories }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(5);
-
-  const [open, setOpen] = useState(false);
-  const [updateCategory, setUpdateCategory] = useState(null);
-
-  const dispatch = useAppDispatch();
-
-  const handlePageChange = (event: any, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-  };
-
-  const paginatedCategories = applyPagination(categories, page, limit);
+const CategoryListTable = () => {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector(_categoryList);
+  const pagination = useAppSelector(_pagination);
+  const totalCount = useAppSelector(_totalCount);
 
-  const handleUpdate = () => {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState<number>(pagination.page - 1);
+  const [limit, setLimit] = useState<number>(pagination.limit);
+  const [open, setOpen] = useState(false);
+
+  const handleUpdate = (category) => {
+    dispatch(setSelectedCategory(category));
     setOpen(true);
   };
 
   const handleDelete = async (category: Category) => {
-    await api.deleteCategory(category?.categoryId).then((res) => {
+    try {
+      setLoading(true);
+      const res = await api.deleteCategory(category?.categoryId);
       if (res.status === 200) {
         toast.success('Category is deleted');
-        dispatch(getCategories());
+        dispatch(setPagination({ page: page + 1, limit }));
       } else {
         toast.warning(res.data.ERR_CODE);
       }
-    });
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const getCategoryList = useCallback(async (page, limit) => {
+    try {
+      setLoading(true);
+      const categoryRes = await api.getDreamCategoryList(page, limit);
+      dispatch(setCategoryList(categoryRes.categories));
+      dispatch(setTotalCount(parseInt(categoryRes.totalCount || '0')));
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    getCategoryList(pagination.page, pagination.limit);
+  }, [pagination]);
+
+  useEffect(() => {
+    dispatch(setPagination({ page: page + 1, limit }));
+  }, [page, limit]);
+
   return (
     <>
       <AddCategory
         open={open}
-        selectedCategory={updateCategory}
         onClose={() => {
           setOpen(false);
         }}
@@ -102,7 +109,7 @@ const CategoryListTable: FC<CategoryListTableProps> = ({ categories }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedCategories.map((category) => {
+              {categories.map((category) => {
                 const isCategorySelected = selectedCategories.includes(
                   category?.categoryId
                 );
@@ -157,8 +164,7 @@ const CategoryListTable: FC<CategoryListTableProps> = ({ categories }) => {
                           color="inherit"
                           size="small"
                           onClick={() => {
-                            setUpdateCategory(category);
-                            handleUpdate();
+                            handleUpdate(category);
                           }}
                         >
                           <EditTwoToneIcon fontSize="small" />
@@ -191,9 +197,9 @@ const CategoryListTable: FC<CategoryListTableProps> = ({ categories }) => {
         <Box p={2}>
           <TablePagination
             component="div"
-            count={categories.length}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleLimitChange}
+            count={totalCount}
+            onPageChange={(_, pageNumber) => setPage(pageNumber)}
+            onRowsPerPageChange={(event) => setLimit(parseInt(event.target.value))}
             page={page}
             rowsPerPage={limit}
             rowsPerPageOptions={[5, 10, 25, 30]}
@@ -205,6 +211,7 @@ const CategoryListTable: FC<CategoryListTableProps> = ({ categories }) => {
         newestOnTop
         style={{ marginTop: 100, zIndex: '99999 !important' }}
       />
+      {loading && <SuspenseLoader/>}
     </>
   );
 };

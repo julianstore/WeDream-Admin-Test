@@ -37,7 +37,7 @@ const SignIn = () => {
   const [userLogin, setUserLogin] = useState('');
   const [password, setPassword] = useState('');
   const handleSignIn = useCallback(async () => {
-    const LoginSourceAdmin = 3;
+    const LoginSourceAdmin = parseInt(process.env.REACT_APP_ADMIN_SOURCE) || 3;
     try {
       setLoading(true);
       const res = await api.signIn(userLogin, password, LoginSourceAdmin);

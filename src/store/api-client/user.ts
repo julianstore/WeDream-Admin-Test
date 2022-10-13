@@ -1,4 +1,5 @@
 import axiosInstance from '.';
+import { BirthDate, Phone } from '../models/base';
 import { UsersResponse, UserResponse } from '../models/user';
 
 export const getAllUsers = (pageNum = 1, perPage = 5) => {
@@ -24,10 +25,8 @@ export const addUser = async (
   lastName: string,
   displayName: string,
   email: string,
-  phone: string,
-  year: number,
-  month: number,
-  day: number,
+  phone: Phone,
+  birthdate: BirthDate,
   password: string
 ) => {
   return axiosInstance
@@ -35,14 +34,10 @@ export const addUser = async (
       first_name: firstName,
       last_name: lastName,
       display_name: displayName,
-      email: email,
-      password: password,
-      phone: phone,
-      birthdate: {
-        year: year,
-        month: month,
-        day: day + 1
-      }
+      email,
+      password,
+      phone,
+      birthdate
     })
     .then((res: any) => res)
     .catch((err) => {
@@ -50,28 +45,44 @@ export const addUser = async (
     });
 };
 
+export const confirmUser = async (
+  userLoginId: string,
+  code: string,
+  source: number
+) => {
+  return axiosInstance
+  .post<{}>('/account/confirm', {
+    user_login_id: userLoginId,
+    code: code,
+    source: source
+  })
+  .then((res: any) => res)
+  .catch((err) => {
+    return err.response;
+  });
+}
+
 export const updateUser = async (
   userId: string,
   firstName: string,
   lastName: string,
   displayName: string,
-  email: string,
-  year: number,
-  month: number,
-  day: number
+  bio: string,
+  birthdate: BirthDate,
+  isAdmin: boolean,
+  addInvites: number
 ) => {
   return axiosInstance
-    .post('/account/updateprofile', {
+    .put(`/account/${userId}/profile`, {
       user_id: userId,
       first_name: firstName,
       last_name: lastName,
+      full_name: `${firstName} ${lastName}`,
       display_name: displayName,
-      email: email,
-      birthdate: {
-        year: year,
-        month: month,
-        day: day + 1
-      }
+      bio: bio,
+      birthdate,
+      is_admin: isAdmin,
+      add_invites: addInvites
     })
     .then((res: any) => res)
     .catch((err) => {
@@ -81,7 +92,7 @@ export const updateUser = async (
 
 export const deleteUser = async (userId: string) => {
   return axiosInstance
-    .delete('/account/deleteprofile/' + userId)
+    .delete(`/account/${userId}`)
     .then((res: any) => res)
     .catch((err) => {
       return err.response;

@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async';
 import { Grid, Container } from '@mui/material';
 
-import DreamList from './DreamList';
 import PageHeader from './PageHeader';
 import Footer from 'src/components/Footer';
+import VoiceRequestList from './VoiceRequestList';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 
-function ApplicationsDreams() {
+function ApplicationsVoiceRequests() {
   return (
     <>
       <Helmet>
-        <title>Dreams - Applications</title>
+        <title>Voice Requests - Applications</title>
       </Helmet>
       <PageTitleWrapper>
         <PageHeader />
@@ -24,7 +24,7 @@ function ApplicationsDreams() {
           spacing={3}
         >
           <Grid item xs={12}>
-            <DreamList />
+            <VoiceRequestList />
           </Grid>
         </Grid>
       </Container>
@@ -33,4 +33,4 @@ function ApplicationsDreams() {
   );
 }
 
-export default ApplicationsDreams;
+export default ApplicationsVoiceRequests;

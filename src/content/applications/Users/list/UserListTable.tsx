@@ -1,4 +1,4 @@
-import { FC, ChangeEvent, useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Tooltip,
@@ -17,75 +17,98 @@ import {
   useTheme
 } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
+import CheckIcon from '@mui/icons-material/Check';
+import { ToastContainer, toast } from 'react-toastify';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
 import AddUser from '../AddUser';
+import ConfirmUser from '../ConfirmUser';
 import * as api from 'src/store/api-client';
 import { User } from 'src/store/models/user';
-import { useAppDispatch } from 'src/store/hooks';
-import { Pagination } from 'src/store/models/base';
-import { getUsers } from 'src/store/slices/userSlice';
-import { ToastContainer, toast } from 'react-toastify';
-import { injectStyle } from 'react-toastify/dist/inject-style';
-
-interface UserListTableProps {
-  className?: string;
-  users: User[];
-  totalCount: number;
-  setPagination: (pagination: Pagination) => void;
-}
+import SuspenseLoader from 'src/components/SuspenseLoader';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { _userList, _pagination, _totalCount, setTotalCount, setPagination, setUserList, setSelectedUser } from 'src/store/slices/userSlice';
 
 if (typeof window !== 'undefined') {
   injectStyle();
 }
 
-const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPagination }) => {
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(5);
-
-  const [open, setOpen] = useState(false);
-  const [updateUser, setUpdateUser] = useState(null);
-
-  const dispatch = useAppDispatch();
-
-  const handlePageChange = (event: any, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-  };
-
+const UserListTable = () => {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const users = useAppSelector(_userList);
+  const pagination = useAppSelector(_pagination);
+  const totalCount = useAppSelector(_totalCount);
 
-  const handleUpdate = () => {
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState<number>(pagination.page - 1);
+  const [limit, setLimit] = useState<number>(pagination.limit);
+  const [open, setOpen] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+
+  const handleUpdate = (user: User) => {
+    dispatch(setSelectedUser(user));
     setOpen(true);
   };
 
+  const handleConfirm = (user: User) => {
+    dispatch(setSelectedUser(user));
+    setOpenConfirm(true);
+  }
+
   const handleDelete = async (user: User) => {
-    await api.deleteUser(user?.profile.userId).then((res) => {
+    try {
+      setLoading(true);
+      const res = await api.deleteUser(user?.profile.userId);
       if (res.status === 200) {
         toast.success('User is deleted');
-        dispatch(getUsers());
+        dispatch(setPagination({ page: page + 1, limit }));
       } else {
         toast.warning(res.data.ERR_CODE);
       }
-    });
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const getUserList = useCallback(async (page, limit) => {
+    try {
+      setLoading(true);
+      const userRes = await api.getAllUsers(page, limit);
+      dispatch(setUserList(userRes.users));
+      dispatch(setTotalCount(parseInt(userRes.totalCount || '0')));
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    setPagination({ page: page + 1, limit });
-  }, [page, limit])
+    getUserList(pagination.page, pagination.limit);
+  }, [pagination]);
+
+  useEffect(() => {
+    dispatch(setPagination({ page: page + 1, limit }));
+  }, [page, limit]);
 
   return (
     <>
       <AddUser
         open={open}
-        selectedUser={updateUser}
         onClose={() => {
           setOpen(false);
+        }}
+      />
+      <ConfirmUser
+        open={openConfirm}
+        onClose={() => {
+          setOpenConfirm(false);
         }}
       />
       <Card>
@@ -99,7 +122,8 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
                 <TableCell>Full Name</TableCell>
                 <TableCell>Display Name</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Birthdate</TableCell>
+                <TableCell>BirthDate</TableCell>
+                <TableCell>Confirmed Time</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -139,7 +163,7 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
                         />
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{ maxWidth: '250px' }} title={user?.profile?.fullName || ''}>
                       <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -150,7 +174,7 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
                         {user?.profile?.fullName}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{ maxWidth: '250px' }} title={user?.displayName || ''}>
                       <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -185,7 +209,35 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
                         {user?.profile?.birthdate?.day}
                       </Typography>
                     </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body1"
+                        fontWeight="bold"
+                        color="text.primary"
+                        gutterBottom
+                        noWrap
+                      >
+                        {user?.profile?.confirmedTime ? user?.profile?.confirmedTime.substr(0, 10) : '- -'}
+                      </Typography>
+                    </TableCell>
                     <TableCell align="right">
+                      {user?.profile?.confirmedTime && <Tooltip title="Confirm Profile" arrow>
+                        <IconButton
+                          sx={{
+                            '&:hover': {
+                              background: theme.colors.primary.lighter
+                            },
+                            color: theme.palette.primary.main
+                          }}
+                          color="inherit"
+                          size="small"
+                          onClick={() => {
+                            handleConfirm(user);
+                          }}
+                        >
+                          <CheckIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>}
                       <Tooltip title="Update Profile" arrow>
                         <IconButton
                           sx={{
@@ -197,8 +249,7 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
                           color="inherit"
                           size="small"
                           onClick={() => {
-                            setUpdateUser(user);
-                            handleUpdate();
+                            handleUpdate(user);
                           }}
                         >
                           <EditTwoToneIcon fontSize="small" />
@@ -232,8 +283,8 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
           <TablePagination
             component="div"
             count={totalCount}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleLimitChange}
+            onPageChange={(_, pageNumber) => setPage(pageNumber)}
+            onRowsPerPageChange={(event) => setLimit(parseInt(event.target.value))}
             page={page}
             rowsPerPage={limit}
             rowsPerPageOptions={[5, 10, 25, 30]}
@@ -245,12 +296,13 @@ const UserListTable: FC<UserListTableProps> = ({ users, totalCount, setPaginatio
         newestOnTop
         style={{ marginTop: 100, zIndex: '99999 !important' }}
       />
+      {loading && <SuspenseLoader/>}
     </>
   );
 };
 
 UserListTable.propTypes = {
-  users: PropTypes.array.isRequired
+  users: PropTypes.array.isRequired,
 };
 
 UserListTable.defaultProps = {

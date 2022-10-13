@@ -1,21 +1,13 @@
 import { Card } from '@mui/material';
+
 import CategoryListTable from './CategoryListTable';
-import { getCategories, _categoryList } from 'src/store/slices/categorySlice';
-import { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-function UserList() {
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(getCategories());
-  }, [dispatch]);
-  const categoryList = useAppSelector(_categoryList);
-
+function CategoryList() {
   return (
     <Card>
-      <CategoryListTable categories={categoryList} />
+      <CategoryListTable/>
     </Card>
   );
 }
 
-export default UserList;
+export default CategoryList;

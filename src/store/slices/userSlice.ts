@@ -1,7 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, Profile } from '../models/user';
+
 import { AppState } from '../store';
 import * as api from '../api-client';
+import { User } from '../models/user';
+import { Pagination } from '../models/base';
+
 export const getUsers = createAsyncThunk<User[], void, { state: AppState }>(
   'user/getList',
   async () => {
@@ -11,13 +14,17 @@ export const getUsers = createAsyncThunk<User[], void, { state: AppState }>(
 );
 
 export interface UserState {
-  userList: User[];
+  userList: Array<User>;
+  totalCount: number;
   selectedUser: User;
+  pagination: Pagination;
 }
 
 const initUserState: UserState = {
   userList: [],
-  selectedUser: null
+  totalCount: 0,
+  selectedUser: null,
+  pagination: { page: 1, limit: 5 },
 };
 
 const userSlice = createSlice({
@@ -27,6 +34,18 @@ const userSlice = createSlice({
   reducers: {
     addUser(state, action: PayloadAction<User>) {
       state.userList = [action.payload, ...state.userList];
+    },
+    setUserList(state, action: PayloadAction<Array<User>>) {
+      state.userList = action.payload;
+    },
+    setPagination(state, action: PayloadAction<Pagination>) {
+      state.pagination = action.payload;
+    },
+    setTotalCount(state, action: PayloadAction<number>) {
+      state.totalCount = action.payload;
+    },
+    setSelectedUser(state, action: PayloadAction<User>) {
+      state.selectedUser = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -39,6 +58,9 @@ const userSlice = createSlice({
 // here's you a reducer
 export default userSlice.reducer;
 
-export const { addUser } = userSlice.actions;
+export const { addUser, setUserList, setPagination, setTotalCount, setSelectedUser } = userSlice.actions;
 
 export const _userList = (state: any) => state.user.userList;
+export const _totalCount = (state: any) => state.user.totalCount;
+export const _selectedUser = (state: any) => state.user.selectedUser;
+export const _pagination = (state: any) => state.user.pagination;

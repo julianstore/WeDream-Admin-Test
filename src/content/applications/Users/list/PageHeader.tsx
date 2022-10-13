@@ -1,16 +1,19 @@
-import { Typography, Button, Grid } from '@mui/material';
-
-import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
-import AddUser from '../AddUser';
 import { useState } from 'react';
+import { Typography, Button, Grid } from '@mui/material';
+import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+
+import AddUser from '../AddUser';
+import { useAppDispatch } from 'src/store/hooks';
+import { setSelectedUser } from 'src/store/slices/userSlice';
 
 function PageHeader() {
-  const user = {
-    name: 'Admin',
-    avatar: '/static/images/avatars/1.jpg'
-  };
-
+  const dispatch = useAppDispatch();
   const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    dispatch(setSelectedUser(null));
+    setOpen(true);
+  };
 
   return (
     <>
@@ -27,14 +30,12 @@ function PageHeader() {
             Users
           </Typography>
           <Typography variant="subtitle2">
-            {user.name}, these are your dream users
+            Admin, these are your dream users
           </Typography>
         </Grid>
         <Grid item>
           <Button
-            onClick={() => {
-              setOpen(true);
-            }}
+            onClick={handleOpen}
             sx={{ mt: { xs: 2, md: 0 } }}
             variant="contained"
             startIcon={<AddTwoToneIcon fontSize="small" />}

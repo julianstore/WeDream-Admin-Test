@@ -30,7 +30,7 @@ export const updateCategory = async (
   name: string
 ) => {
   return axiosInstance
-    .post('/dream/category/update', {
+    .put(`/dream/category/${categoryId}`, {
       category_id: categoryId,
       icon: icon,
       name: name

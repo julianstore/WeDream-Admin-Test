@@ -1,17 +1,14 @@
-export interface Birthdate {
-  day: number;
-  month: number;
-  year: number;
-}
+import { BirthDate, Phone } from "./base";
 
 export interface Profile {
   bio: string;
-  birthdate: Birthdate;
+  birthdate: BirthDate;
   email: string;
-  phone: string;
+  phone: Phone;
   firstName: string;
   lastName: string;
   fullName: string;
+  confirmedTime: string;
   userId: string;
 }
 

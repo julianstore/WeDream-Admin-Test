@@ -1,5 +1,4 @@
-import { FC, ChangeEvent, useState } from 'react';
-import Avatar from '@mui/material/Avatar';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Tooltip,
@@ -17,74 +16,82 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-
-import { Dream } from 'src/store/models/dream';
-import AddDream from '../AddDream';
-import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
-import * as api from 'src/store/api-client';
-import { useAppDispatch } from 'src/store/hooks';
-import { getDreams } from 'src/store/slices/dreamSlice';
-import { injectStyle } from 'react-toastify/dist/inject-style';
 import { ToastContainer, toast } from 'react-toastify';
+import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
+import { injectStyle } from 'react-toastify/dist/inject-style';
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
-interface DreamListTableProps {
-  className?: string;
-  dreams: Dream[];
-}
-
-const applyPagination = (
-  dreams: Dream[],
-  page: number,
-  limit: number
-): Dream[] => {
-  return dreams.slice(page * limit, page * limit + limit);
-};
+import AddDream from '../AddDream';
+import * as api from 'src/store/api-client';
+import { Dream } from 'src/store/models/dream';
+import SuspenseLoader from 'src/components/SuspenseLoader';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { _dreamList, _pagination, _totalCount, setTotalCount, setPagination, setDreamList, setSelectedDream } from 'src/store/slices/dreamSlice';
 
 if (typeof window !== 'undefined') {
   injectStyle();
 }
 
-const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
-  const [selectedDreams, setSelectedDreams] = useState<string[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(5);
-
-  const [open, setOpen] = useState(false);
-  const [updateDream, setUpdateDream] = useState(null);
-
-  const dispatch = useAppDispatch();
-
-  const handlePageChange = (event: any, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
-  };
-
-  const paginatedDreams = applyPagination(dreams, page, limit);
+const DreamListTable = () => {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const dreams = useAppSelector(_dreamList);
+  const pagination = useAppSelector(_pagination);
+  const totalCount = useAppSelector(_totalCount);
 
-  const handleUpdate = () => {
+  const [selectedDreams, setSelectedDreams] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState<number>(pagination.page - 1);
+  const [limit, setLimit] = useState<number>(pagination.limit);
+  const [open, setOpen] = useState(false);
+
+  const handleUpdate = (dream: Dream) => {
+    dispatch(setSelectedDream(dream));
     setOpen(true);
   };
 
   const handleDelete = async (dream: Dream) => {
-    await api.deleteDream(dream?.dreamId).then((res) => {
+    try {
+      setLoading(true);
+      const res = await api.deleteDream(dream?.dreamId);
       if (res.status === 200) {
         toast.success('Dream is deleted');
-        dispatch(getDreams());
+        dispatch(setPagination({ page: page + 1, limit }));
       } else {
         toast.warning(res.data.ERR_CODE);
       }
-    });
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const getDreamList = useCallback(async (page, limit) => {
+    try {
+      setLoading(true);
+      const dreamRes = await api.getAllDreams(page, limit);
+      dispatch(setDreamList(dreamRes.dreamList));
+      dispatch(setTotalCount(parseInt(dreamRes.totalCount || '0')));
+    } catch(ex) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    getDreamList(pagination.page, pagination.limit);
+  }, [pagination]);
+
+  useEffect(() => {
+    dispatch(setPagination({ page: page + 1, limit }));
+  }, [page, limit]);
+
   return (
     <>
       <AddDream
         open={open}
-        selectedDream={updateDream}
         onClose={() => {
           setOpen(false);
         }}
@@ -95,7 +102,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Dream ID</TableCell>
+                <TableCell>ID</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Background</TableCell>
                 <TableCell>Owner</TableCell>
@@ -113,7 +120,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginatedDreams.map((dream) => {
+              {dreams.map((dream) => {
                 const isDreamSelected = selectedDreams.includes(dream?.dreamId);
                 return (
                   <TableRow
@@ -165,7 +172,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
                         {dream?.ownerDisplayName}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{ maxWidth: '250px' }} title={dream?.title || ''}>
                       <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -176,7 +183,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
                         {dream?.title}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell style={{ maxWidth: '250px' }} title={dream?.description || ''}>
                       <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -287,8 +294,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
                           color="inherit"
                           size="small"
                           onClick={() => {
-                            setUpdateDream(dream);
-                            handleUpdate();
+                            handleUpdate(dream);
                           }}
                         >
                           <EditTwoToneIcon fontSize="small" />
@@ -321,9 +327,9 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
         <Box p={2}>
           <TablePagination
             component="div"
-            count={dreams.length}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleLimitChange}
+            count={totalCount}
+            onPageChange={(_, pageNumber) => setPage(pageNumber)}
+            onRowsPerPageChange={(event) => setLimit(parseInt(event.target.value))}
             page={page}
             rowsPerPage={limit}
             rowsPerPageOptions={[5, 10, 25, 30]}
@@ -335,6 +341,7 @@ const DreamListTable: FC<DreamListTableProps> = ({ dreams }) => {
         newestOnTop
         style={{ marginTop: 100, zIndex: '99999 !important' }}
       />
+      {loading && <SuspenseLoader/>}
     </>
   );
 };
