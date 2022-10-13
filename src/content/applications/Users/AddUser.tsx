@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import 'react-phone-input-2/lib/style.css';
 import DialogTitle from '@mui/material/DialogTitle';
 import { ToastContainer, toast } from 'react-toastify';
 import DialogContent from '@mui/material/DialogContent';
