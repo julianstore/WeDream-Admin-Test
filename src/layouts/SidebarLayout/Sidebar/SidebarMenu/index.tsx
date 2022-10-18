@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useCallback } from 'react';
 
 import {
   ListSubheader,
@@ -7,7 +7,8 @@ import {
   List,
   styled,
   Button,
-  ListItem
+  ListItem,
+  Collapse
 } from '@mui/material';
 import { NavLink as RouterLink } from 'react-router-dom';
 import { SidebarContext } from 'src/contexts/SidebarContext';
@@ -36,6 +37,9 @@ import GroupIcon from '@mui/icons-material/Group';
 import CategoryIcon from '@mui/icons-material/Category';
 import TvIcon from '@mui/icons-material/Tv';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -181,62 +185,18 @@ const SubMenuWrapper = styled(Box)(
 
 function SidebarMenu() {
   const { closeSidebar } = useContext(SidebarContext);
+  const [menu, setMenu] = useState({ dream: true });
+
+  const handleMenu = useCallback((e, key) => {
+    e.preventDefault();
+    const newMenu = Object.assign({}, menu);
+    newMenu[key] = !newMenu[key];
+    setMenu(newMenu);
+  }, [menu])
 
   return (
     <>
       <MenuWrapper>
-        {/* <List component="div">
-          <SubMenuWrapper>
-            <List component="div">
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/overview"
-                  startIcon={<DesignServicesTwoToneIcon />}
-                >
-                  Overview
-                </Button>
-              </ListItem>
-            </List>
-          </SubMenuWrapper>
-        </List> */}
-        {/* <List
-          component="div"
-          subheader={
-            <ListSubheader component="div" disableSticky>
-              Dashboards
-            </ListSubheader>
-          }
-        >
-          <SubMenuWrapper>
-            <List component="div">
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/dashboards"
-                  startIcon={<BrightnessLowTwoToneIcon />}
-                >
-                  Cryptocurrency
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/dashboards/messenger"
-                  startIcon={<MmsTwoToneIcon />}
-                >
-                  Messenger
-                </Button>
-              </ListItem>
-            </List>
-          </SubMenuWrapper>
-        </List> */}
         <List
           component="div"
           subheader={
@@ -271,26 +231,41 @@ function SidebarMenu() {
               </ListItem>
               <ListItem component="div">
                 <Button
-                  disableRipple
                   component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/dreams"
-                  startIcon={<TvIcon />}
+                  onClick={(e) => handleMenu(e, 'dream')}
+                  to="dream-list"
+                  startIcon={<ViewInArIcon />}
+                  endIcon={menu.dream ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
                 >
-                  Dream List
+                  Dreams
                 </Button>
               </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/categories"
-                  startIcon={<CategoryIcon />}
-                >
-                  Category List
-                </Button>
-              </ListItem>
+              <Collapse in={menu.dream}>
+                <List component="div">
+                  <ListItem component="div">
+                    <Button
+                      disableRipple
+                      component={RouterLink}
+                      onClick={closeSidebar}
+                      to="/management/dreams"
+                      startIcon={<TvIcon />}
+                    >
+                      Dream List
+                    </Button>
+                  </ListItem>
+                  <ListItem component="div">
+                    <Button
+                      disableRipple
+                      component={RouterLink}
+                      onClick={closeSidebar}
+                      to="/management/categories"
+                      startIcon={<CategoryIcon />}
+                    >
+                      Dream Categories
+                    </Button>
+                  </ListItem>
+                </List>
+              </Collapse>
               <ListItem component="div">
                 <Button
                   disableRipple

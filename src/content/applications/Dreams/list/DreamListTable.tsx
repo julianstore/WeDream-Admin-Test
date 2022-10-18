@@ -78,6 +78,10 @@ const DreamListTable = () => {
     } finally {
       setLoading(false);
     }
+    return () => {
+      dispatch(setDreamList(dreams));
+      dispatch(setTotalCount(totalCount));
+    }
   }, []);
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { useContext, useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,10 +9,11 @@ import {
   useTheme,
   styled,
 } from '@mui/material';
-
 import ShoppingBagTwoToneIcon from '@mui/icons-material/ShoppingBagTwoTone';
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
 import StarTwoToneIcon from '@mui/icons-material/StarTwoTone';
+
+import AuthContext from 'src/contexts/AuthContext';
 
 const AvatarPrimary = styled(Avatar)(
   ({ theme }) => `
@@ -24,6 +26,14 @@ const AvatarPrimary = styled(Avatar)(
 
 function RecentActivity() {
   const theme = useTheme();
+  const authContext = useContext(AuthContext);
+  const [notificationCount, setNotificationCount] = useState('0');
+  const [inviteCount, setInviteCount] = useState('0');
+
+  useEffect(() => {
+    setNotificationCount(authContext?.user?.counts?.pendingNotifications || '0');
+    setInviteCount(authContext?.user?.counts?.remainingInvites || '0');
+  }, [authContext]);
 
   return (
     <Card>
@@ -34,7 +44,7 @@ function RecentActivity() {
           <ShoppingBagTwoToneIcon />
         </AvatarPrimary>
         <Box pl={2} flex={1}>
-          <Typography variant="h3">Orders</Typography>
+          <Typography variant="h3">Notifications</Typography>
 
           <Box pt={2} display="flex">
             <Box pr={8}>
@@ -45,7 +55,7 @@ function RecentActivity() {
               >
                 Total
               </Typography>
-              <Typography variant="h2">485</Typography>
+              <Typography variant="h2">{ notificationCount }</Typography>
             </Box>
             <Box>
               <Typography
@@ -53,9 +63,9 @@ function RecentActivity() {
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Failed
+                Pending
               </Typography>
-              <Typography variant="h2">8</Typography>
+              <Typography variant="h2">{ notificationCount }</Typography>
             </Box>
           </Box>
         </Box>
@@ -66,60 +76,18 @@ function RecentActivity() {
           <FavoriteTwoToneIcon />
         </AvatarPrimary>
         <Box pl={2} flex={1}>
-          <Typography variant="h3">Favourites</Typography>
+          <Typography variant="h3">Invites</Typography>
 
           <Box pt={2} display="flex">
-            <Box pr={8}>
+            <Box pr={0}>
               <Typography
                 gutterBottom
                 variant="caption"
                 sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
               >
-                Products
+                Remaining Invites
               </Typography>
-              <Typography variant="h2">64</Typography>
-            </Box>
-            <Box>
-              <Typography
-                gutterBottom
-                variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
-              >
-                Lists
-              </Typography>
-              <Typography variant="h2">15</Typography>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
-      <Divider />
-      <Box px={2} py={4} display="flex" alignItems="flex-start">
-        <AvatarPrimary>
-          <StarTwoToneIcon />
-        </AvatarPrimary>
-        <Box pl={2} flex={1}>
-          <Typography variant="h3">Reviews</Typography>
-
-          <Box pt={2} display="flex">
-            <Box pr={8}>
-              <Typography
-                gutterBottom
-                variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
-              >
-                Total
-              </Typography>
-              <Typography variant="h2">654</Typography>
-            </Box>
-            <Box>
-              <Typography
-                gutterBottom
-                variant="caption"
-                sx={{ fontSize: `${theme.typography.pxToRem(16)}` }}
-              >
-                Useful
-              </Typography>
-              <Typography variant="h2">21</Typography>
+              <Typography variant="h2">{ inviteCount }</Typography>
             </Box>
           </Box>
         </Box>

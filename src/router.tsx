@@ -11,6 +11,7 @@ import ApplicationsUsers from './content/applications/Users/list';
 import ApplicationsDreams from 'src/content/applications/Dreams/list';
 import ApplicationsCategories from './content/applications/Categories/list';
 import ApplicationsVoiceRequests from './content/applications/VoiceRequest/list';
+import ManagementUserProfile from './content/applications/Users/profile';
 
 // ** Lazy Loading Components **
 // import { Suspense, lazy } from 'react';
@@ -111,6 +112,14 @@ const routes: RouteObject[] = [
         element: (
           <AuthRoute>
             <ApplicationsVoiceRequests />
+          </AuthRoute>
+        )
+      },
+      {
+        path: 'profile/details',
+        element: (
+          <AuthRoute>
+            <ManagementUserProfile />
           </AuthRoute>
         )
       },

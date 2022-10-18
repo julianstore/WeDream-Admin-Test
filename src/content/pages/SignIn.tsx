@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useState, useRef } from 'react';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +36,8 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [userLogin, setUserLogin] = useState('');
   const [password, setPassword] = useState('');
+  const passwordInputRef = useRef(null);
+
   const handleSignIn = useCallback(async () => {
     const LoginSourceAdmin = parseInt(process.env.REACT_APP_ADMIN_SOURCE) || 3;
     try {
@@ -86,10 +88,17 @@ const SignIn = () => {
                       onChange={(e) => {
                         setUserLogin(e.target.value);
                       }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          (passwordInputRef.current as any).focus();
+                        }
+                      }}
                     />
                   </Grid>
                   <Grid item xs={8} style={{ margin: '10px auto' }}>
                     <TextField
+                      inputRef={passwordInputRef}
                       id="standard-password-input"
                       label="Password"
                       type="password"
@@ -98,6 +107,12 @@ const SignIn = () => {
                       fullWidth
                       onChange={(e) => {
                         setPassword(e.target.value);
+                      }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSignIn();
+                        }
                       }}
                     />
                   </Grid>

@@ -78,6 +78,10 @@ const CategoryListTable = () => {
     } finally {
       setLoading(false);
     }
+    return () => {
+      dispatch(setCategoryList(categories));
+      dispatch(setTotalCount(totalCount));
+    }
   }, []);
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { useContext, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Footer from 'src/components/Footer';
 
@@ -6,22 +7,32 @@ import { Grid, Container } from '@mui/material';
 import ProfileCover from './ProfileCover';
 import RecentActivity from './RecentActivity';
 import Feed from './Feed';
-import PopularTags from './PopularTags';
+import ProfileInfo from './ProfileInfo';
 import MyCards from './MyCards';
 import Addresses from './Addresses';
+import AuthContext from 'src/contexts/AuthContext';
 
 function ManagementUserProfile() {
-  const user = {
+  const authContext = useContext(AuthContext);
+  const [user, setUser] = useState({
     savedCards: 7,
     name: 'Catherine Pike',
     coverImg: '/static/images/placeholders/covers/5.jpg',
     avatar: '/static/images/avatars/4.jpg',
-    description:
-      "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage",
-    jobtitle: 'Web Developer',
-    location: 'Barcelona, Spain',
-    followers: '465'
-  };
+    description: "",
+    jobtitle: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    setUser({
+      ...user,
+      name: authContext?.user?.user?.displayName || '',
+      avatar: authContext?.user?.user?.imageUrl || '',
+      email: authContext?.user?.user?.profile?.email || '',
+      jobtitle: authContext?.user?.user?.isAdmin ? 'Administrator' : 'User',
+    });
+  }, [authContext]);
 
   return (
     <>
@@ -42,18 +53,18 @@ function ManagementUserProfile() {
           <Grid item xs={12} md={4}>
             <RecentActivity />
           </Grid>
-          <Grid item xs={12} md={8}>
+          {/* <Grid item xs={12} md={8}>
             <Feed />
+          </Grid> */}
+          <Grid item xs={12} md={12}>
+            <ProfileInfo />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <PopularTags />
-          </Grid>
-          <Grid item xs={12} md={7}>
+          {/* <Grid item xs={12} md={7}>
             <MyCards />
           </Grid>
           <Grid item xs={12} md={5}>
             <Addresses />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
       <Footer />

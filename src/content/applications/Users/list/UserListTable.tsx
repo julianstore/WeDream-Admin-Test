@@ -87,6 +87,10 @@ const UserListTable = () => {
     } finally {
       setLoading(false);
     }
+    return () => {
+      dispatch(setUserList(users));
+      dispatch(setTotalCount(totalCount));
+    }
   }, []);
 
   useEffect(() => {
