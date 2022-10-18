@@ -185,7 +185,7 @@ const SubMenuWrapper = styled(Box)(
 
 function SidebarMenu() {
   const { closeSidebar } = useContext(SidebarContext);
-  const [menu, setMenu] = useState({ dream: true });
+  const [menu, setMenu] = useState({ dream: false });
 
   const handleMenu = useCallback((e, key) => {
     e.preventDefault();
