@@ -10,6 +10,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import * as api from '../../../store/api-client';
 import SuspenseLoader from 'src/components/SuspenseLoader';
@@ -184,35 +185,25 @@ function AddDream(props) {
           >
             <div style={{ display: 'grid', gridTemplateColumns: '50% 50%' }}>
               <FormControl variant='standard' sx={{ m: 1 }}>
-                <TextField
-                  id="outlined-select-currency"
-                  select
-                  label="Please select dream category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {categories.map((item) => (
-                    <MenuItem key={item.categoryId} value={item.categoryId}>
-                      {item.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <Autocomplete
+                  disablePortal
+                  options={categories.map(item => ({ label: item.name, id: item.categoryId }))}
+                  renderInput={(params) => <TextField {...params} label="Please select dream category" />}
+                  onChange={(e, item: any) => {
+                    setCategory(item.id);
+                  }}
+                />
               </FormControl>
 
               <FormControl variant='standard' sx={{ m: 1 }}>
-                <TextField
-                  id="outlined-select-currency"
-                  select
-                  label="Please select owner"
-                  value={owner}
-                  onChange={(e) => setOwner(e.target.value)}
-                >
-                  {users.map((user) => (
-                    <MenuItem key={user.profile.userId} value={user.profile.userId}>
-                      {user.displayName}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                <Autocomplete
+                  disablePortal
+                  options={users.map(user => ({ label: user.displayName, id: user.profile.userId }))}
+                  renderInput={(params) => <TextField {...params} label="Please select owner" />}
+                  onChange={(e, item: any) => {
+                    setOwner(item.id);
+                  }}
+                />
               </FormControl>
             </div>
 
@@ -339,7 +330,7 @@ function AddDream(props) {
 
               <FormControl variant='standard' sx={{ m: 1 }}>
                 <FormLabel>
-                  Allow Hide From Lists
+                  Hide From Lists
                 </FormLabel>
                 <Switch
                   checked={hideFromLists}
@@ -350,7 +341,7 @@ function AddDream(props) {
 
               <FormControl variant='standard' sx={{ m: 1 }}>
                 <FormLabel>
-                  Allow Private
+                  Is Private
                 </FormLabel>
                 <Switch
                   checked={isPrivate}
